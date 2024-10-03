@@ -9,10 +9,11 @@ void MainThread(HMODULE module)
     JavaVM* p_jvm{ nullptr };
     jint result = JNI_GetCreatedJavaVMs(&p_jvm, 1, nullptr);
 
-    JNIEnv* p_env{ nullptr }; // JNI interface pointer
+    JNIEnv* p_env{ nullptr };
     p_jvm->AttachCurrentThread((void**)&p_env, nullptr);
 
     jclass mouse_class{ p_env->FindClass("org/lwjgl/input/Mouse") };
+    jclass keyboard_class{p_env->FindClass("org/lwjgl/input/Keyboard")};
 
     if (mouse_class == 0)
     {
@@ -21,11 +22,26 @@ void MainThread(HMODULE module)
         FreeLibrary(module);
     }
 
+    if (keyboard_class == 0)
+    {
+        printf("Failed to get Mouse class\n");
+        MessageBoxA(0, "ERROR", "Check console", MB_ICONERROR);
+        FreeLibrary(module);
+    }
+
     jmethodID is_button_down_id{ p_env->GetStaticMethodID(mouse_class, "isButtonDown", "(I)Z") };
+    jmethodID is_key_down_id{ p_env->GetStaticMethodID(keyboard_class, "isKeyDown", "(I)Z") };
 
     if (is_button_down_id == 0)
     {
         printf("Failed to get is_button_down id\n");
+        MessageBoxA(0, "ERROR", "Check console", MB_ICONERROR);
+        FreeLibrary(module);
+    }
+
+    if (is_key_down_id == 0)
+    {
+        printf("Failed to get is_key_down_id \n");
         MessageBoxA(0, "ERROR", "Check console", MB_ICONERROR);
         FreeLibrary(module);
     }
